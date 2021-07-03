@@ -24,7 +24,7 @@ class AnotacaoHelper {
 
   _onCreate(Database db, int version) async {
     String sql =
-        "CREATE TABLE anotacao (id INTEGER PRIMARY KEY AUTOINCREMENT, titulo VARCHAR, descricao TEXT, data DATETIME)";
+        "CREATE TABLE $nomeTabela (id INTEGER PRIMARY KEY AUTOINCREMENT, titulo VARCHAR, descricao TEXT, data DATETIME)";
     await db.execute(sql);
   }
 
@@ -50,5 +50,27 @@ class AnotacaoHelper {
     );
 
     return id;
+  }
+
+  recuperarAnotacoes() async {
+    var bancoDados = await db;
+    String sql = "SELECT * FROM $nomeTabela ORDER BY data desc";
+    List anotacoes = await bancoDados.rawQuery(sql);
+    return anotacoes;
+  }
+
+  Future<int> atualizarAnotacao(Anotacao anotacao) async {
+    var bancoDados = await db;
+    return await bancoDados.update(nomeTabela, anotacao.toMap(),
+        where: "id = ?", whereArgs: [anotacao.id]);
+  }
+
+  Future<int> removerAnotacao(int id) async {
+    var bancoDados = await db;
+    return await bancoDados.delete(
+      nomeTabela,
+      where: "id = ?",
+      whereArgs: [id],
+    );
   }
 }
